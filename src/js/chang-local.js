@@ -1,18 +1,58 @@
-const DASE_URL ='http://localhost:3000'
+import { error } from '@pnotify/core';
+import '@pnotify/core/dist/PNotify.css';
+import '@pnotify/core/dist/BrightTheme.css';
 
-const newBook = {
-  title: 'Test kniga',
-  author: 'Ja',
-  genres:['CSS'],
-  rsting: 9,
+import pixayCardTp from '../templates/card.hbs';
+import apiService from './news-service';
+import loadMoreBtn from './load-more-btn';
+
+const gallery = document.querySelector('.gallery');
+const searchForm = document.querySelector('#search-form');
+const loadMoreBtnRef = document.querySelector('[data-action="load-more"]');
+const apiServiceTg = new apiService();
+
+searchForm.addEventListener('submit', hendlerInput);
+loadMoreBtnRef.addEventListener('click', onLoadMore);
+
+// const loadMoreBtnTg = new LoadMoreBtn({
+//   selector: '[data-action="load-more"]',
+//   hidden: true,
+// });
+function hendlerInput(e) {
+  e.preventDefault();
+
+  clearInput();
+  apiServiceTg.query = e.currentTarget.elements.query.value.trim();
+  // if (!apiServiceTg) {
+  //   return;
+  // }
+
+  loadMoreBtn.show();
+  // apiServiceTg.resetPage();
+  fetchCards();
+  if (apiServiceTg.query === '') {
+    clearInput();
+    return enterLetters();
+  }
 }
 
-const options = {
-  method: "POST",
-  headers: {
-    "Content-Type": 'application/json',
-  },
-  body: JSON.stringify(newBook)
+function fetchCards() {
+  return apiServiceTg.fetchImage().then(cards => {
+    renderPixay(cards);
+  });
 }
-
-fetch('http://localhost:3000/books', options).then(res => res.json()).then(console.log)
+function enterLetters() {
+  error({
+    text: '← Введіть щось для пошуку',
+    delay: 2000,
+  });
+}
+function onLoadMore() {
+  fetchCards();
+}
+function clearInput() {
+  gallery.innerHTML = '';
+}
+function renderPixay(hits) {
+  gallery.insertAdjacentHTML('beforeend', pixayCardTp(hits));
+}
