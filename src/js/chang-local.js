@@ -2,57 +2,76 @@ import { error } from '@pnotify/core';
 import '@pnotify/core/dist/PNotify.css';
 import '@pnotify/core/dist/BrightTheme.css';
 
-import pixayCardTp from '../templates/card.hbs';
-import apiService from './news-service';
+const debounce = require('lodash.debounce');
+
+import cardImgTMPL from '../templates/card.hbs';
+import apiService from './new-service';
 import loadMoreBtn from './load-more-btn';
 
-const gallery = document.querySelector('.gallery');
-const searchForm = document.querySelector('#search-form');
+const imgCardRef = document.querySelector('.gallery');
+const searchFormRef = document.querySelector('#search-form');
 const loadMoreBtnRef = document.querySelector('[data-action="load-more"]');
-const apiServiceTg = new apiService();
 
-searchForm.addEventListener('submit', hendlerInput);
+searchFormRef.addEventListener('submit', onSearch);
 loadMoreBtnRef.addEventListener('click', onLoadMore);
 
-// const loadMoreBtnTg = new LoadMoreBtn({
-//   selector: '[data-action="load-more"]',
-//   hidden: true,
-// });
-function hendlerInput(e) {
+function onSearch(e) {
   e.preventDefault();
-
+  apiService.resetPage();
+  apiService.query = e.currentTarget.query.value.trim();
+  apiService.selectValueData = e.currentTarget.select.value;
   clearInput();
-  apiServiceTg.query = e.currentTarget.elements.query.value.trim();
-  // if (!apiServiceTg) {
-  //   return;
-  // }
-
-  loadMoreBtn.show();
-  // apiServiceTg.resetPage();
-  fetchCards();
-  if (apiServiceTg.query === '') {
-    clearInput();
-    return enterLetters();
+  if (apiService.inputValueData) {
+    onLoadMore();
+  } else {
+    enterLetters();
   }
 }
 
-function fetchCards() {
-  return apiServiceTg.fetchImage().then(cards => {
-    renderPixay(cards);
-  });
+function onLoadMore() {
+  loadMoreBtn.disable();
+  apiService
+    .fetchContent()
+    .then(img => {
+      renderingImgCard(img);
+    })
+    .catch(enterLetters);
 }
+
+function renderingImgCard(hits) {
+  if (hits.length !== 0) {
+    imgCardRef.insertAdjacentHTML('beforeend', cardImgTMPL(hits));
+    loadMoreBtn.show();
+    loadMoreBtn.enable();
+
+    if (hits.length < 12) {
+      loadMoreBtn.hide();
+    }
+
+    if (apiService.page) {
+      scroll();
+    }
+  } else {
+    enterLetters();
+  }
+}
+
 function enterLetters() {
+  clearInput();
+  loadMoreBtn.hide();
   error({
-    text: '← Введіть щось для пошуку',
+    text: '← Введіть правильну назву',
     delay: 2000,
   });
 }
-function onLoadMore() {
-  fetchCards();
-}
+
 function clearInput() {
-  gallery.innerHTML = '';
+  searchFormRef.query.value = '';
+  imgCardRef.innerHTML = '';
 }
-function renderPixay(hits) {
-  gallery.insertAdjacentHTML('beforeend', pixayCardTp(hits));
+function scroll() {
+  loadMoreBtnRef.scrollIntoView({
+    behavior: 'smooth',
+    block: 'end',
+  });
 }

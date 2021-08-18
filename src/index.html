@@ -11,19 +11,22 @@
   <body>
     <form class="search-form" id="search-form">
       <input type="text" name="query" autocomplete="off" placeholder="Search images..." />
-      <button type="submit" class="search-form__btn">Search</button>
+      <button name="select" id="" class="select">
+        <option value="all">Ввод</option>
+      </button>
     </form>
 
     <ul class="gallery"></ul>
 
-    <button type="button" class="btn btn-primary button" data-action="load-more">
+    <button type="button" class="btn is-hidden" data-action="load-more">
       <span
-        class="spinner-border spinner-border-sm spinner is-hidden"
+        class="spinner-border spinner-border-sm spiner is-hidden"
         role="status"
         aria-hidden="true"
       ></span>
-      <span class="label">Показать ещё</span>
+      <span class="label">Load More</span>
     </button>
+
     <script src="./index.js" type="module"></script>
   </body>
 </html>
