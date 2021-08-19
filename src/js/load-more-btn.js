@@ -1,18 +1,15 @@
 const loadMoreBtnRef = document.querySelector('[data-action="load-more"]');
-const loadMoreBtnLabelRef = document.querySelector('[data-action="load-more"] > .label');
-const spinerRef = document.querySelector('.spiner');
+const loadMoreBtnLabelRef = document.querySelector('.label');
 
 const loadMoreBtn = {
   enable() {
     loadMoreBtnRef.disabled = false;
-    loadMoreBtnLabelRef.textContent = 'Load More';
-    spinerRef.classList.add('is-hidden');
+    loadMoreBtnLabelRef.textContent = 'Загрузи больше';
   },
 
   disable() {
     loadMoreBtnRef.disabled = true;
-    loadMoreBtnLabelRef.textContent = 'Load...';
-    spinerRef.classList.remove('is-hidden');
+    loadMoreBtnLabelRef.textContent = 'Загруз...';
   },
 
   show() {

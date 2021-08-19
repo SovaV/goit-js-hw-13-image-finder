@@ -2,26 +2,23 @@ import { error } from '@pnotify/core';
 import '@pnotify/core/dist/PNotify.css';
 import '@pnotify/core/dist/BrightTheme.css';
 
-const debounce = require('lodash.debounce');
-
-import cardImgTMPL from '../templates/card.hbs';
-import apiService from './new-service';
+import templCard from '../templates/card.hbs';
+import searchQuery from './apiService.js';
 import loadMoreBtn from './load-more-btn';
 
-const imgCardRef = document.querySelector('.gallery');
-const searchFormRef = document.querySelector('#search-form');
-const loadMoreBtnRef = document.querySelector('[data-action="load-more"]');
+const galleryLet = document.querySelector('.gallery');
+const searchFormLet = document.querySelector('#search-form');
+const loadMoreBtnLet = document.querySelector('[data-action="load-more"]');
 
-searchFormRef.addEventListener('submit', onSearch);
-loadMoreBtnRef.addEventListener('click', onLoadMore);
+searchFormLet.addEventListener('submit', onSearch);
+loadMoreBtnLet.addEventListener('click', onLoadMore);
 
 function onSearch(e) {
   e.preventDefault();
-  apiService.resetPage();
-  apiService.query = e.currentTarget.query.value.trim();
-  apiService.selectValueData = e.currentTarget.select.value;
+  searchQuery.resetPage();
+  searchQuery.query = e.currentTarget.query.value.trim();
   clearInput();
-  if (apiService.inputValueData) {
+  if (searchQuery.query) {
     onLoadMore();
   } else {
     enterLetters();
@@ -30,47 +27,46 @@ function onSearch(e) {
 
 function onLoadMore() {
   loadMoreBtn.disable();
-  apiService
-    .fetchContent()
-    .then(img => {
-      renderingImgCard(img);
-    })
-    .catch(enterLetters);
+  searchQuery.fetchContent().then(cards => {
+    renderingImgCard(cards);
+  });
 }
 
 function renderingImgCard(hits) {
   if (hits.length !== 0) {
-    imgCardRef.insertAdjacentHTML('beforeend', cardImgTMPL(hits));
+    galleryLet.insertAdjacentHTML('beforeend', templCard(hits));
     loadMoreBtn.show();
     loadMoreBtn.enable();
-
+    scroll();
     if (hits.length < 12) {
       loadMoreBtn.hide();
     }
-
-    if (apiService.page) {
-      scroll();
-    }
   } else {
-    enterLetters();
+    ERROR();
   }
 }
 
 function enterLetters() {
-  clearInput();
   loadMoreBtn.hide();
   error({
-    text: '← Введіть правильну назву',
-    delay: 2000,
+    text: '← Введи слово',
+    delay: 1000,
+  });
+}
+function ERROR() {
+  loadMoreBtn.hide();
+  error({
+    text: '← Ошибка ввода',
+    delay: 1000,
   });
 }
 
 function clearInput() {
-  searchFormRef.query.value = '';
-  imgCardRef.innerHTML = '';
+  searchFormLet.query.value = '';
+  galleryLet.innerHTML = '';
 }
 function scroll() {
-  loadMoreBtnRef.scrollIntoView({
+  loadMoreBtnLet.scrollIntoView({
     behavior: 'smooth',
     block: 'end',
   });
