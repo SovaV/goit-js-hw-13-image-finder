@@ -12,6 +12,21 @@ const loadMoreBtnLet = document.querySelector('[data-action="load-more"]');
 
 searchFormLet.addEventListener('submit', onSearch);
 loadMoreBtnLet.addEventListener('click', onLoadMore);
+galleryLet.addEventListener('click', openModal);
+
+// ====== Modalka
+import * as basicLightbox from 'basiclightbox';
+
+function createModal(modalImg) {
+  basicLightbox.create(`<img src="${modalImg}" >`).show();
+}
+function openModal(e) {
+  const largeImageURL = e.target.dataset.source;
+  if (e.target.nodeName === 'IMG') {
+    console.log(e.target.nodeName);
+    createModal(largeImageURL);
+  }
+}
 
 function onSearch(e) {
   e.preventDefault();
